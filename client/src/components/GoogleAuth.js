@@ -1,14 +1,49 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { signIn, signOut } from "../actions";
 
-const GoogleAuth = props => {
+const GoogleAuth = () => {
+  const [gAuth, setGAuth] = useState(null);
   const auth = useSelector(state => state.auth);
+  const { isSignedIn } = auth;
+  const dispatch = useDispatch();
   const onAuthChange = isSignedIn => {
     if (isSignedIn) {
-      props.signIn(auth.currentUser.get().getId());
+      dispatch(
+        signIn(
+          window.gapi.auth2
+            .getAuthInstance()
+            .currentUser.get()
+            .getId()
+        )
+      );
     } else {
-      props.signOut();
+      dispatch(signOut());
+    }
+  };
+  const onSignInClick = () => {
+    gAuth.signIn();
+  };
+  const onSignOutClick = () => {
+    gAuth.signOut();
+  };
+  const renderAuthButton = () => {
+    if (isSignedIn === null) {
+      return null;
+    } else if (isSignedIn) {
+      return (
+        <button onClick={onSignOutClick} className="ui red google button">
+          <i className="google icon" />
+          Sign Out
+        </button>
+      );
+    } else {
+      return (
+        <button onClick={onSignInClick} className="ui red google button">
+          <i className="google icon" />
+          Sign In with Google
+        </button>
+      );
     }
   };
   useEffect(() => {
@@ -20,14 +55,14 @@ const GoogleAuth = props => {
           scope: "email"
         })
         .then(() => {
-          const auth = window.gapi.auth2.getAuthInstance();
-
-          onAuthChange(auth.isSignedIn.get());
-          auth.isSignedIn.listen(onAuthChange);
+          setGAuth(window.gapi.auth2.getAuthInstance());
+          onAuthChange(window.gapi.auth2.getAuthInstance().isSignedIn.get());
+          window.gapi.auth2.getAuthInstance().isSignedIn.listen(onAuthChange);
         });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return <div></div>;
+  return <div>{renderAuthButton()}</div>;
 };
 
 export default GoogleAuth;
