@@ -7,7 +7,7 @@ const ChatInput = () => {
 	const socket = useContext(ChatContext);
 	const handleSubmit = e => {
 		e.preventDefault();
-		socket.emit("chatMessage", input);
+		input.trim() && socket.emit("chatMessage", input.trim());
 		setInput("");
 	};
 	return (

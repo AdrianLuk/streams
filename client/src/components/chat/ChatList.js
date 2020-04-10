@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import ChatContext from "../../contexts/ChatContext";
+import { Grid } from "@material-ui/core";
 
 const ChatList = () => {
 	const socket = useContext(ChatContext);
@@ -12,11 +13,11 @@ const ChatList = () => {
 		return () => socket?.disconnect();
 	}, [socket]);
 	return (
-		<div>
+		<Grid container direction={`column`}>
 			{chats.map((chat, index) => (
 				<p key={index}>{chat}</p>
 			))}
-		</div>
+		</Grid>
 	);
 };
 
